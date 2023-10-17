@@ -35,7 +35,7 @@ class PointService(Interceptor):
             points.append(data)
 
         points = sorted(points, key=lambda d: d['date_time'])
-        count = 1.0
+        count = 1
         data_list = []
         for point in points:
             if point['seq_mark'] != count:
