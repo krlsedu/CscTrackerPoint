@@ -27,5 +27,17 @@ def register_post():  # put application's code here
         return {"status": "error", "message": "register not added"}, 500, {'Content-Type': 'application/json'}
 
 
+@app.route('/register', methods=['GET'])
+def register_get():  # put application's code here
+    headers = request.headers
+    args = request.args
+    try:
+        points = point_service.get_agrupped_points( headers, args)
+        return points, 200, {'Content-Type': 'application/json'}
+    except Exception as e:
+        print(e)
+        return {"status": "error", "message": "register getted"}, 500, {'Content-Type': 'application/json'}
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
