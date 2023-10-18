@@ -1,3 +1,4 @@
+import calendar
 import datetime
 import decimal
 import json
@@ -104,5 +105,18 @@ class Utils(Interceptor):
         if response.status_code != 200:
             print(response.status_code)
         pass
+
+    @staticmethod
+    def all_days(month, year):
+
+        num_days = calendar.monthrange(int(year), int(month))[1]
+
+        all_days = [day for day in range(1, num_days+1)]
+
+        return all_days
+
+    @staticmethod
+    def fill_left(value, size, fill_char='0'):
+        return str(value).rjust(size, fill_char)
 
 

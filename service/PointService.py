@@ -123,5 +123,17 @@ class PointService(Interceptor):
             point['date_time'] = Utils.get_format_date_time_in_tz(point['date_time'], "%Y-%m-%d %H:%M:%S.%f",
                                                                   'UTC', configs['time_zone'])
             point_['points'].append(point)
+        date_time = Utils.get_format_date_time_in_tz(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+                                                     "%Y-%m-%d %H:%M:%S",
+                                                     'UTC', configs['time_zone'])
+        for day in Utils.all_days(date_time.split("-")[1], date_time.split("-")[0]):
+            day_ = date_time.split("-")[0] + "-" + date_time.split("-")[1] + "-" + Utils.fill_left(str(day), 2)
+            if day_ not in dates_:
+                point_ = {
+                    'date': day_,
+                    'worked_time': 0,
+                    'points': []
+                }
+                points_list.append(point_)
         points_list = sorted(points_list, key=lambda d: d['date'])
         return points_list
