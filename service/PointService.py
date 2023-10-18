@@ -45,14 +45,14 @@ class PointService(Interceptor):
                 point['edited'] = False
 
         if 'id' not in data:
-            data['edited'] = False
+            data['edited'] = True
             points.append(data)
 
         points = sorted(points, key=lambda d: d['date_time'])
         count = 1
         data_list = []
         for point in points:
-            if point['seq_mark'] != count or point['edited']:
+            if point['edited'] or point['seq_mark'] != count:
                 point['seq_mark'] = count
                 point['type'] = "S" if point['seq_mark'] % 2 == 0 else "E"
                 data_list.append(point)
