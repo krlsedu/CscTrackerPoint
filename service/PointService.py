@@ -13,9 +13,16 @@ class PointService(Interceptor):
 
     def save(self, data, headers=None, args=None):
         if 'delete' in data:
+            date_time_ = None
+            if 'date_time' in data:
+                date_time_ = data['date_time']
+                del data['date_time']
+
             if data['delete']:
                 del data['delete']
                 http_repository.delete('user_points', data, headers)
+                if date_time_ is not None:
+                    data['date_time'] = date_time_
             else:
                 return
 
