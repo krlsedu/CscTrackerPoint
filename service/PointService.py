@@ -49,7 +49,7 @@ class PointService(Interceptor):
         count = 1
         data_list = []
         for point in points:
-            if point['seq_mark'] != count:
+            if point['seq_mark'] != count or len(points) == 1:
                 point['seq_mark'] = count
                 point['type'] = "S" if point['seq_mark'] % 2 == 0 else "E"
                 data_list.append(point)
