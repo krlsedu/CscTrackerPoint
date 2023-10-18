@@ -37,22 +37,29 @@ class PointService(Interceptor):
         points = sorted(points, key=lambda d: d['date_time'], reverse=True)
         for point in points:
             if 'id' in data and data['id'] == point['id']:
+                point['edited'] = True
                 for key in point.keys():
                     if key in data:
                         point[key] = data[key]
+            else:
+                point['edited'] = False
 
         if 'id' not in data:
-            data['seq_mark'] = 0
+            data['edited'] = False
             points.append(data)
 
         points = sorted(points, key=lambda d: d['date_time'])
         count = 1
         data_list = []
         for point in points:
-            if point['seq_mark'] != count or len(points) == 1:
+            if point['seq_mark'] != count or point['edited']:
                 point['seq_mark'] = count
                 point['type'] = "S" if point['seq_mark'] % 2 == 0 else "E"
                 data_list.append(point)
+
+            if 'edited' in point:
+                del point['edited']
+
             count += 1
 
         http_repository.save('user_points', data_list, headers)
