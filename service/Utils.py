@@ -20,6 +20,7 @@ class Encoder(json.JSONEncoder):
         if isinstance(obj, datetime.date):
             return obj.strftime('%Y-%m-%d')
 
+
 class Utils(Interceptor):
     def __init__(self):
         super().__init__()
@@ -111,12 +112,14 @@ class Utils(Interceptor):
 
         num_days = calendar.monthrange(int(year), int(month))[1]
 
-        all_days = [day for day in range(1, num_days+1)]
+        all_days = [day for day in range(1, num_days + 1)]
 
         return all_days
 
     @staticmethod
+    def last_month_day(month, year):
+        return str(calendar.monthrange(int(year), int(month))[1])
+
+    @staticmethod
     def fill_left(value, size, fill_char='0'):
         return str(value).rjust(size, fill_char)
-
-

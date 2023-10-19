@@ -93,8 +93,16 @@ class PointService(Interceptor):
 
     def get_agrupped_points(self, headers=None, args=None):
         configs = http_repository.get_object('configs', {}, headers)
+        if 'mesAno' not in args:
+            args['mesAno'] = datetime.now(timezone.utc).strftime("%Y-%m")
 
-        points = http_repository.get_objects('user_points', args, headers)
+        ano_ = args['mesAno'].split('-')[0]
+        mes_ = args['mesAno'].split('-')[1]
+        period_ = f"date >= {args['mesAno']}-01 and date <= {args['mesAno']}-{Utils.last_month_day(mes_, ano_)}"
+        filter_ = {
+            'period': period_
+        }
+        points = http_repository.get_objects('user_points', filter_, headers)
         points = sorted(points, key=lambda d: d['date_time'])
         points_list = []
         date = None
@@ -123,11 +131,8 @@ class PointService(Interceptor):
             point['date_time'] = Utils.get_format_date_time_in_tz(point['date_time'], "%Y-%m-%d %H:%M:%S.%f",
                                                                   'UTC', configs['time_zone'])
             point_['points'].append(point)
-        date_time = Utils.get_format_date_time_in_tz(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
-                                                     "%Y-%m-%d %H:%M:%S",
-                                                     'UTC', configs['time_zone'])
-        for day in Utils.all_days(date_time.split("-")[1], date_time.split("-")[0]):
-            day_ = date_time.split("-")[0] + "-" + date_time.split("-")[1] + "-" + Utils.fill_left(str(day), 2)
+        for day in Utils.all_days(mes_, ano_):
+            day_ = args['mesAno'] + "-" + Utils.fill_left(str(day), 2)
             if day_ not in dates_:
                 point_ = {
                     'date': day_,
