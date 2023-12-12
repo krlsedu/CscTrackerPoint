@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 
+import pandas as pd
+
 from repository.HttpRepository import HttpRepository
 from service.Interceptor import Interceptor
 from service.Utils import Utils
@@ -142,3 +144,49 @@ class PointService(Interceptor):
                 points_list.append(point_)
         points_list = sorted(points_list, key=lambda d: d['date'])
         return points_list
+
+    def get_worked_time(self, headers=None):
+        data = http_repository.get_all_objects('user_worked_time', headers)
+        holidays = http_repository.get_all_objects('user_holidays', headers)
+        df = pd.DataFrame(data)
+        df_holidays = pd.DataFrame(holidays)
+
+        df['date'] = pd.to_datetime(df['date'], utc=True)
+        df_holidays['date'] = pd.to_datetime(df_holidays['date'], utc=True)
+
+        df = df[df['date'] != pd.to_datetime('today').strftime('%Y-%m-%d')]
+        df_holidays = df_holidays[df_holidays['date'] != pd.to_datetime('today').strftime('%Y-%m-%d')]
+
+        df_holidays['holiday_time'] = df_holidays.apply(
+            lambda row: 0 if row['date'].weekday() in [5, 6] else 8 * 3600 + 48 * 60, axis=1)
+
+        df['expected_time'] = df.apply(lambda row: 0 if row['date'].weekday() in [5, 6] else 8 * 3600 + 48 * 60, axis=1)
+
+        df_agg = df.groupby(['user_id']).agg({'worked_time': 'sum',
+                                              'expected_time': 'sum',
+                                              'date': ['min', 'max']})
+
+        df_agg.columns = ['_'.join(col) for col in df_agg.columns.values]
+        df_agg.reset_index(inplace=True)
+
+        df_agg['expected_time_sum'] = df_agg['expected_time_sum'] - df_holidays['holiday_time'].sum()
+
+        df_agg['extra_time'] = df_agg['worked_time_sum'] - df_agg['expected_time_sum']
+
+        df_agg['worked_time_sum'] = pd.to_timedelta(df_agg['worked_time_sum'], unit='s')
+        df_agg['expected_time_sum'] = pd.to_timedelta(df_agg['expected_time_sum'], unit='s')
+        df_agg['extra_time'] = pd.to_timedelta(df_agg['extra_time'], unit='s')
+        print(df_agg)
+
+        df_agg['date_min'] = df_agg['date_min'].dt.strftime('%Y-%m-%d')
+        df_agg['date_max'] = df_agg['date_max'].dt.strftime('%Y-%m-%d')
+        df_agg['worked_time_sum'] = df_agg['worked_time_sum'].apply(str)
+        df_agg['expected_time_sum'] = df_agg['expected_time_sum'].apply(str)
+        df_agg['extra_time'] = df_agg['extra_time'].apply(str)
+
+        df_agg = df_agg.rename(columns={'worked_time_sum': 'worked_time',
+                                        'expected_time_sum': 'expected_time'})
+        df_agg = df_agg.rename(columns={'date_min': 'first_day',
+                                        'date_max': 'last_day'})
+
+        return df_agg.to_json(orient='records')

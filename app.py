@@ -1,5 +1,4 @@
 from flask import Flask, request
-
 from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
 
@@ -49,6 +48,18 @@ def register_get():  # put application's code here
     args = request.args
     try:
         points = point_service.get_agrupped_points(headers, args)
+        return points, 200, {'Content-Type': 'application/json'}
+    except Exception as e:
+        print(e)
+        return {"status": "error", "message": "register getted"}, 500, {'Content-Type': 'application/json'}
+
+
+@app.route('/worked-time', methods=['GET'])
+def worked_time():  # put application's code here
+    headers = request.headers
+    args = request.args
+    try:
+        points = point_service.get_worked_time(headers)
         return points, 200, {'Content-Type': 'application/json'}
     except Exception as e:
         print(e)
