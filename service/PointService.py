@@ -173,16 +173,15 @@ class PointService(Interceptor):
 
         df_agg['extra_time'] = df_agg['worked_time_sum'] - df_agg['expected_time_sum']
 
-        df_agg['worked_time_sum'] = pd.to_timedelta(df_agg['worked_time_sum'], unit='s')
-        df_agg['expected_time_sum'] = pd.to_timedelta(df_agg['expected_time_sum'], unit='s')
-        df_agg['extra_time'] = pd.to_timedelta(df_agg['extra_time'], unit='s')
-        print(df_agg)
+        df_agg['worked_time_sum'] = df_agg['worked_time_sum'].apply(lambda x: f'{x//3600}h {(x//60)%60:02d}m {x%60:02d}s')
+        df_agg['expected_time_sum'] = df_agg['expected_time_sum'].apply(lambda x: f'{x//3600}h {(x//60)%60:02d}m {x%60:02d}s')
+        df_agg['extra_time'] = df_agg['extra_time'].apply(lambda x: f'{x//3600}h {(x//60)%60:02d}m {x%60:02d}s')
 
         df_agg['date_min'] = df_agg['date_min'].dt.strftime('%Y-%m-%d')
         df_agg['date_max'] = df_agg['date_max'].dt.strftime('%Y-%m-%d')
-        df_agg['worked_time_sum'] = df_agg['worked_time_sum'].apply(str)
-        df_agg['expected_time_sum'] = df_agg['expected_time_sum'].apply(str)
-        df_agg['extra_time'] = df_agg['extra_time'].apply(str)
+        # df_agg['worked_time_sum'] = df_agg['worked_time_sum'].apply(str)
+        # df_agg['expected_time_sum'] = df_agg['expected_time_sum'].apply(str)
+        # df_agg['extra_time'] = df_agg['extra_time'].apply(str)
 
         df_agg = df_agg.rename(columns={'worked_time_sum': 'worked_time',
                                         'expected_time_sum': 'expected_time'})
