@@ -169,13 +169,17 @@ class PointService(Interceptor):
         df_agg.columns = ['_'.join(col) for col in df_agg.columns.values]
         df_agg.reset_index(inplace=True)
 
-        df_agg['expected_time_sum'] = df_agg['expected_time_sum'] - df_holidays['holiday_time'].sum()
+        df_agg['working_days'] = df_agg.apply(self.calculate_working_days, axis=1)
+
+        df_agg['expected_time_sum'] = df_agg['working_days'] * (8 * 3600 + 48 * 60)
 
         df_agg['extra_time'] = df_agg['worked_time_sum'] - df_agg['expected_time_sum']
 
-        df_agg['worked_time_sum'] = df_agg['worked_time_sum'].apply(lambda x: f'{x//3600}h {(x//60)%60:02d}m {x%60:02d}s')
-        df_agg['expected_time_sum'] = df_agg['expected_time_sum'].apply(lambda x: f'{x//3600}h {(x//60)%60:02d}m {x%60:02d}s')
-        df_agg['extra_time'] = df_agg['extra_time'].apply(lambda x: f'{x//3600}h {(x//60)%60:02d}m {x%60:02d}s')
+        df_agg['worked_time_sum'] = df_agg['worked_time_sum'].apply(
+            lambda x: f'{x // 3600}h {(x // 60) % 60:02d}m {x % 60:02d}s')
+        df_agg['expected_time_sum'] = df_agg['expected_time_sum'].apply(
+            lambda x: f'{x // 3600}h {(x // 60) % 60:02d}m {x % 60:02d}s')
+        df_agg['extra_time'] = df_agg['extra_time'].apply(lambda x: f'{x // 3600}h {(x // 60) % 60:02d}m {x % 60:02d}s')
 
         df_agg['date_min'] = df_agg['date_min'].dt.strftime('%Y-%m-%d')
         df_agg['date_max'] = df_agg['date_max'].dt.strftime('%Y-%m-%d')
@@ -189,3 +193,8 @@ class PointService(Interceptor):
                                         'date_max': 'last_day'})
 
         return df_agg.to_json(orient='records')
+
+    def calculate_working_days(self, row):
+        today = pd.Timestamp.now(tz=row['date_min'].tzinfo)
+        yesterday = today - pd.DateOffset(days=1)
+        return len(pd.bdate_range(row['date_min'], yesterday))
