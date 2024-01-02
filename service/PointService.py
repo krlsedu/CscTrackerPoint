@@ -173,6 +173,8 @@ class PointService(Interceptor):
 
         df_agg['expected_time_sum'] = df_agg['working_days'] * (8 * 3600 + 48 * 60)
 
+        df_agg['expected_time_sum'] = df_agg['expected_time_sum'] - df_holidays['holiday_time'].sum()
+
         df_agg['extra_time'] = df_agg['worked_time_sum'] - df_agg['expected_time_sum']
 
         df_agg['worked_time_sum'] = df_agg['worked_time_sum'].apply(
