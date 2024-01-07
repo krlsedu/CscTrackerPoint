@@ -1,14 +1,12 @@
 from datetime import datetime, timezone
 
-from repository.HttpRepository import HttpRepository
-from service.Interceptor import Interceptor
-from service.Utils import Utils
-
-http_repository = HttpRepository()
+from csctracker_py_core.repository.remote_repository import RemoteRepository
+from csctracker_py_core.utils.utils import Utils
 
 
-class PointService(Interceptor):
-    def __init__(self):
+class PointService:
+    def __init__(self, remote_repository: RemoteRepository):
+        self.remote_repository = remote_repository
         super().__init__()
 
     def save(self, data, headers=None, args=None):
@@ -20,13 +18,13 @@ class PointService(Interceptor):
 
             if data['delete']:
                 del data['delete']
-                http_repository.delete('user_points', data, headers)
+                self.remote_repository.delete('user_points', data=data, headers=headers)
                 if date_time_ is not None:
                     data['date_time'] = date_time_
             else:
                 return
 
-        configs = http_repository.get_object('configs', {}, headers)
+        configs = self.remote_repository.get_object('configs', data={}, headers=headers)
 
         if 'date_time' not in data:
             data['date_time'] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
@@ -40,7 +38,7 @@ class PointService(Interceptor):
 
         date = date_time.split(' ')[0]
         data['date'] = date
-        points = http_repository.get_objects('user_points', {'date': date}, headers)
+        points = self.remote_repository.get_objects('user_points', data={'date': date}, headers=headers)
         points = sorted(points, key=lambda d: d['date_time'], reverse=True)
         for point in points:
             if 'id' in data and data['id'] == point['id']:
@@ -69,7 +67,7 @@ class PointService(Interceptor):
 
             count += 1
 
-        http_repository.save('user_points', data_list, headers)
+        self.remote_repository.insert('user_points', data=data_list, headers=headers)
 
         worked_time = 0
         time_ant = None
@@ -79,7 +77,7 @@ class PointService(Interceptor):
             elif point['type'] == "S":
                 worked_time += Utils.get_diff_time(time_ant, point['date_time'])
 
-        worked_time_ = http_repository.get_object('user_worked_time', {'date': date}, headers)
+        worked_time_ = self.remote_repository.get_object('user_worked_time', data={'date': date}, headers=headers)
 
         if worked_time_ is not None and worked_time_['id'] is not None:
             worked_time_['worked_time'] = worked_time
@@ -89,10 +87,10 @@ class PointService(Interceptor):
                 'date': date
             }
 
-        http_repository.save('user_worked_time', worked_time_, headers)
+        self.remote_repository.insert('user_worked_time', data=worked_time_, headers=headers)
 
     def get_agrupped_points(self, headers=None, args=None):
-        configs = http_repository.get_object('configs', {}, headers)
+        configs = self.remote_repository.get_object('configs', data={}, headers=headers)
         if 'mesAno' not in args:
             args['mesAno'] = datetime.now(timezone.utc).strftime("%Y-%m")
 
@@ -102,7 +100,7 @@ class PointService(Interceptor):
         filter_ = {
             'period': period_
         }
-        points = http_repository.get_objects('user_points', filter_, headers)
+        points = self.remote_repository.get_objects('user_points', data=filter_, headers=headers)
         points = sorted(points, key=lambda d: d['date_time'])
         points_list = []
         date = None
@@ -112,7 +110,9 @@ class PointService(Interceptor):
             date_ = Utils.get_format_date_time(point['date'], "%Y-%m-%d")
             if date is None or date != date_:
                 date = date_
-                worked_time_ = http_repository.get_object('user_worked_time', {'date': date}, headers)
+                worked_time_ = self.remote_repository.get_object('user_worked_time',
+                                                                 data={'date': date},
+                                                                 headers=headers)
                 if worked_time_ is None:
                     worked_time_ = 0
                 else:

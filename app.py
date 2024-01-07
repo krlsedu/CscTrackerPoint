@@ -1,25 +1,20 @@
-from flask import Flask, request
-
-from flask_cors import CORS
-from prometheus_flask_exporter import PrometheusMetrics
+from csctracker_py_core.starter import Starter
+from csctracker_py_core.utils.utils import Utils
 
 from service.PointService import PointService
-from service.Utils import Utils
 
-app = Flask(__name__)
-cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
+starter = Starter()
+app = starter.get_app()
+http_repository = starter.get_http_repository()
 
-metrics = PrometheusMetrics(app, group_by='endpoint', default_labels={'application': 'CscTrackerPoint'})
-
-point_service = PointService()
+point_service = PointService(starter.get_remote_repository())
 
 
 @app.route('/register', methods=['POST'])
 def register_post():  # put application's code here
-    headers = request.headers
-    args = request.args
-    data = request.get_json()
+    headers = http_repository.get_headers()
+    args = http_repository.get_args()
+    data = http_repository.get_json_body()
     try:
         point_service.save(data, headers, args)
         added_ = {"status": "success", "message": "register added"}
@@ -45,8 +40,8 @@ def register_post():  # put application's code here
 
 @app.route('/register', methods=['GET'])
 def register_get():  # put application's code here
-    headers = request.headers
-    args = request.args
+    headers = http_repository.get_headers()
+    args = http_repository.get_args()
     try:
         points = point_service.get_agrupped_points(headers, args)
         return points, 200, {'Content-Type': 'application/json'}
@@ -55,5 +50,4 @@ def register_get():  # put application's code here
         return {"status": "error", "message": "register getted"}, 500, {'Content-Type': 'application/json'}
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+starter.start()
