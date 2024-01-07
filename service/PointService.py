@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+import pandas as pd
 from csctracker_py_core.repository.remote_repository import RemoteRepository
 from csctracker_py_core.utils.utils import Utils
 
@@ -144,8 +145,8 @@ class PointService:
         return points_list
 
     def get_worked_time(self, headers=None):
-        data = http_repository.get_all_objects('user_worked_time', headers)
-        holidays = http_repository.get_all_objects('user_holidays', headers)
+        data = self.remote_repository.get_all_objects('user_worked_time', headers=headers)
+        holidays = self.remote_repository.get_all_objects('user_holidays', headers=headers)
         df = pd.DataFrame(data)
         df_holidays = pd.DataFrame(holidays)
 
