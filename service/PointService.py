@@ -170,7 +170,7 @@ class PointService:
                                               'date': ['min', 'max']})
 
         df_agg.columns = ['_'.join(col) for col in df_agg.columns.values]
-        df_agg.reset_index(inplace=True)
+        df_agg = df_agg.reset_index(drop=False).reset_index(drop=True)
 
         df_agg['working_days'] = df_agg.apply(self.calculate_working_days, axis=1)
 
