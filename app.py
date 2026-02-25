@@ -57,8 +57,8 @@ def worked_time():  # put application's code here
         points = point_service.get_worked_time(headers)
         return points, 200, {'Content-Type': 'application/json'}
     except Exception as e:
-        print(e)
-        return {"status": "error", "message": "register getted"}, 500, {'Content-Type': 'application/json'}
+        logger.error(e)
+        return {"status": "error", "message": f"Erro {e}"}, 500, {'Content-Type': 'application/json'}
 
 
 starter.start()
