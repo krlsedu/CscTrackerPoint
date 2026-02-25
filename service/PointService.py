@@ -1,4 +1,3 @@
-
 from datetime import datetime, timezone
 
 import pandas as pd
@@ -172,7 +171,10 @@ class PointService:
         df_agg.columns = ['_'.join(col) for col in df_agg.columns.values]
         df_agg = df_agg.reset_index(drop=False).reset_index(drop=True)
 
-        df_agg['working_days'] = df_agg.apply(self.calculate_working_days, axis=1)
+        if df_agg.empty:
+            df_agg['working_days'] = pd.Series(dtype=int)
+        else:
+            df_agg['working_days'] = df_agg.apply(self.calculate_working_days, axis=1)
 
         df_agg['expected_time_sum'] = df_agg['working_days'] * (8 * 3600 * 60)
 
