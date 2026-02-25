@@ -1,3 +1,4 @@
+
 from datetime import datetime, timezone
 
 import pandas as pd
@@ -153,13 +154,16 @@ class PointService:
         df['date'] = pd.to_datetime(df['date'], utc=True)
         df_holidays['date'] = pd.to_datetime(df_holidays['date'], utc=True)
 
+        df = df.reset_index(drop=True)
+        df_holidays = df_holidays.reset_index(drop=True)
+
         df = df[df['date'] != pd.to_datetime('today').strftime('%Y-%m-%d')]
         df_holidays = df_holidays[df_holidays['date'] != pd.to_datetime('today').strftime('%Y-%m-%d')]
 
-        df_holidays['holiday_time'] = df_holidays.apply(
-            lambda row: 0 if row['date'].weekday() in [5, 6] else 8 * 3600 * 60, axis=1)
+        # Operação vetorizada para melhor performance e evitar erros
+        df_holidays['holiday_time'] = (~df_holidays['date'].dt.weekday.isin([5, 6])).astype(int) * 8 * 3600 * 60
 
-        df['expected_time'] = df.apply(lambda row: 0 if row['date'].weekday() in [5, 6] else 8 * 3600 * 60, axis=1)
+        df['expected_time'] = (~df['date'].dt.weekday.isin([5, 6])).astype(int) * 8 * 3600 * 60
 
         df_agg = df.groupby(['user_id']).agg({'worked_time': 'sum',
                                               'expected_time': 'sum',
@@ -184,9 +188,6 @@ class PointService:
 
         df_agg['date_min'] = df_agg['date_min'].dt.strftime('%Y-%m-%d')
         df_agg['date_max'] = df_agg['date_max'].dt.strftime('%Y-%m-%d')
-        # df_agg['worked_time_sum'] = df_agg['worked_time_sum'].apply(str)
-        # df_agg['expected_time_sum'] = df_agg['expected_time_sum'].apply(str)
-        # df_agg['extra_time'] = df_agg['extra_time'].apply(str)
 
         df_agg = df_agg.rename(columns={'worked_time_sum': 'worked_time',
                                         'expected_time_sum': 'expected_time'})
