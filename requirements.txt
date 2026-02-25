@@ -1,4 +1,2 @@
-csctracker-py-core==24.03.001
-csctracker-queue-scheduler==24.02.002
-
+csctracker-py-core==26.7.7
 pandas==2.1.3
