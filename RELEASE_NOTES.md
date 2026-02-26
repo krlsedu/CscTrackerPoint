@@ -1,23 +1,32 @@
-Aqui estão as Notas de Lançamento para a versão **v26.09.006**, focadas em estabilidade e correção de bugs no processamento de dados.
+Aqui estão as Notas de Lançamento para a versão **v26.09.007**, elaboradas com foco em clareza técnica e rastreabilidade.
 
 ---
 
-# 📝 Release Notes - v26.09.006
+# 📝 Release Notes - v26.09.007
+
+## Resumo
+Esta versão foca na correção de uma falha crítica de precisão no cálculo de horas dentro do módulo de serviços de ponto, garantindo que a conversão de unidades de tempo esteja correta para o processamento de jornadas e feriados.
+
+---
 
 ## 🐛 Fixes
 
-*   **PointService:** Corrigida falha no cálculo de dias úteis (`working_days`) que ocorria ao processar um DataFrame vazio. 
-    *   *Impacto:* Evita exceções de execução (Runtime Errors) quando o sistema tenta calcular métricas para períodos sem registros de ponto.
+*   **Cálculo de Jornada (PointService):** Corrigido o multiplicador de unidade de tempo utilizado nos cálculos de `expected_time` (tempo esperado) e `holiday_time` (tempo de feriado). 
+    *   *Impacto:* Resolve discrepâncias onde os valores de tempo estavam sendo calculados com ordens de magnitude incorretas.
     *   *Arquivo afetado:* `service/PointService.py`
+    *   *Commit:* `1eb65eb`
 
 ---
 
-### 🚀 Features
-*   *Nenhuma nova funcionalidade nesta versão.*
-
-### 🔧 Chore
-*   *Nenhuma alteração de infraestrutura ou manutenção nesta versão.*
+## 🚀 Features
+*   *Nesta versão não foram implementadas novas funcionalidades.*
 
 ---
-**Tech Lead:** Carlos Eduardo Duarte Schwalm  
-**Commit de referência:** `4e62a8d`
+
+## 🔧 Chore
+*   *Nesta versão não foram realizadas tarefas de manutenção ou infraestrutura.*
+
+---
+
+**Tech Lead:** Carlos Eduardo Duarte Schwalm (krlsedu)
+**Data da Release:** 2026
