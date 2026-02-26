@@ -160,9 +160,9 @@ class PointService:
         df_holidays = df_holidays[df_holidays['date'] != pd.to_datetime('today').strftime('%Y-%m-%d')]
 
         # Operação vetorizada para melhor performance e evitar erros
-        df_holidays['holiday_time'] = (~df_holidays['date'].dt.weekday.isin([5, 6])).astype(int) * 8 * 3600 * 60
+        df_holidays['holiday_time'] = (~df_holidays['date'].dt.weekday.isin([5, 6])).astype(int) * 8 * 3600
 
-        df['expected_time'] = (~df['date'].dt.weekday.isin([5, 6])).astype(int) * 8 * 3600 * 60
+        df['expected_time'] = (~df['date'].dt.weekday.isin([5, 6])).astype(int) * 8 * 3600
 
         df_agg = df.groupby(['user_id']).agg({'worked_time': 'sum',
                                               'expected_time': 'sum',
@@ -176,7 +176,7 @@ class PointService:
         else:
             df_agg['working_days'] = df_agg.apply(self.calculate_working_days, axis=1)
 
-        df_agg['expected_time_sum'] = df_agg['working_days'] * (8 * 3600 * 60)
+        df_agg['expected_time_sum'] = df_agg['working_days'] * (8 * 3600)
 
         df_agg['expected_time_sum'] = df_agg['expected_time_sum'] - df_holidays['holiday_time'].sum()
 
