@@ -160,7 +160,11 @@ class PointService:
         df_holidays = df_holidays[df_holidays['date'] != pd.to_datetime('today').strftime('%Y-%m-%d')]
 
         # Operação vetorizada para melhor performance e evitar erros
-        df_holidays['holiday_time'] = df_holidays['horas_descontar'].fillna(8) * 3600
+        df_holidays['holiday_time'] = (
+            (~df_holidays['date'].dt.weekday.isin([5, 6])).astype(int)
+            * df_holidays['horas_computar'].fillna(8).astype(int)
+            * 3600
+        )
 
         df['expected_time'] = (~df['date'].dt.weekday.isin([5, 6])).astype(int) * 8 * 3600
 
