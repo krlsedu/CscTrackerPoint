@@ -1,30 +1,29 @@
-Aqui está o Release Notes técnico para a versão **v26.13.001**, focado em correções críticas na lógica de cálculo de horas.
+Aqui está o Release Notes técnico para a versão **v26.13.002**, consolidado com base nos commits analisados.
 
 ---
 
-# 📝 Release Notes - v26.13.001
+# 📝 Release Notes - v26.13.002
 
 ## Resumo
-Esta versão foca na correção de bugs críticos no motor de cálculo de horas (`PointService`), especificamente no tratamento de feriados e ajustes de unidades de tempo, garantindo que o banco de horas e as expectativas de jornada reflitam os valores reais configurados.
+Esta versão foca na correção de cálculos críticos de jornada e tempo no serviço de pontos, garantindo que ajustes de horas customizadas e unidades de tempo sejam processados corretamente.
 
 ---
 
 ## 🐛 Fixes
-
-### Cálculo de Jornada e Feriados (`PointService`)
-*   **Ajuste de Horas Customizadas:** Corrigida a lógica de cálculo do `holiday_time` para considerar corretamente os ajustes de horas customizados. Anteriormente, o sistema poderia ignorar exceções de jornada em dias de feriado.
-*   **Correção de Unidade de Tempo:** Corrigido o multiplicador de unidade de tempo nos campos `expected_time` (tempo esperado) e `holiday_time` (tempo de feriado). Esta falha causava discrepâncias de escala nos cálculos de horas totais.
+*   **Cálculo de Horas em Feriados:** Ajustada a lógica de `holiday_time` para considerar corretamente os ajustes de horas customizadas (`custom hours adjustments`).
+*   **Correção de Unidade de Tempo:** Corrigido o multiplicador de unidade de tempo incorreto que afetava os cálculos de `expected_time` e `holiday_time` no serviço de pontos.
+*   **Integridade de Dados:** Sincronização das fórmulas de cálculo no `PointService.py` para evitar discrepâncias em relatórios de horas.
 
 ## 🔧 Chore
-*   **Versionamento:** Atualização dos arquivos de controle `version.txt` e sincronização do histórico no `RELEASE_NOTES.md`.
-*   **Build:** Trigger de build para a linhagem da versão 26.
+*   **Build Automation:** Atualização de metadados de versão (`version.txt`) e logs de histórico.
+*   **Documentação:** Atualização do arquivo `RELEASE_NOTES.md` refletindo as mudanças das builds intermediárias.
 
 ---
 
-### 🛠 Detalhes Técnicos (Diff Stats)
-- **Arquivos alterados:** 3
-- **Impacto principal:** `service/PointService.py` (Lógica de negócio de ponto eletrônico).
-- **Commits analisados:** `d77a7c1`, `69c8f82`, `1eb65eb`.
+### 🛠 Detalhes Técnicos (Diff Insights)
+As alterações concentraram-se no arquivo `service/PointService.py`, onde foram identificados erros de precisão aritmética na conversão de unidades de tempo, impactando diretamente a folha de ponto dos colaboradores em dias de exceção (feriados e horários customizados).
 
----
-**Tech Lead:** Carlos Eduardo Duarte Schwalm
+**Commits incluídos:**
+- `d77a7c1`: Fix holiday_time calculation.
+- `1eb65eb`: Fix incorrect time unit multiplier.
+- `fa517a9` & `69c8f82`: Build triggers e versionamento.
